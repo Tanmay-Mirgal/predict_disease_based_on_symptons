@@ -3,23 +3,33 @@ from flask_cors import CORS
 import joblib
 import traceback
 import pandas as pd
+import os
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
+# Get absolute path of the current script
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # Load trained model and label encoder
 try:
-    model = joblib.load("disease_prediction_model.pkl")
-    label_encoder = joblib.load("label_encoder.pkl")
+    model_path = os.path.join(BASE_DIR, "server", "disease_prediction_model.pkl")
+    label_encoder_path = os.path.join(BASE_DIR, "server", "label_encoder.pkl")
+
+    model = joblib.load(model_path)
+    label_encoder = joblib.load(label_encoder_path)
+    print("✅ Model and Label Encoder loaded successfully!")
 except Exception as e:
     print("❌ Error loading model or label encoder:", str(e))
     exit(1)  # Stop execution if models can't be loaded
 
 # Load dataset and extract feature names (excluding non-symptom columns)
 try:
-    df = pd.read_csv("dataset.csv")
+    dataset_path = os.path.join(BASE_DIR, "server", "dataset.csv")
+    df = pd.read_csv(dataset_path)
     X_columns = [col for col in df.columns if col not in ["disease", "cures", "doctor", "risk level"]]
     disease_info = df[['disease', 'cures', 'doctor', 'risk level']].drop_duplicates()
+    print("✅ Dataset loaded successfully!")
 except Exception as e:
     print("❌ Error loading dataset:", str(e))
     exit(1)  # Stop execution if dataset can't be loaded
