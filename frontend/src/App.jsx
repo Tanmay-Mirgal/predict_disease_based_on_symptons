@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 
-// List of all symptoms
 const allSymptoms = [
   "keeping an erection", "itchy nose", "swelling", "lightheadedness", "sore throat",
   "pain during sex", "urgency to urinate", "pink eye", "vomiting", "difficulty getting",
@@ -50,12 +49,12 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row items-center bg-gray-900">
+    <div className="min-h-screen flex flex-col lg:flex-row items-center justify-center bg-gray-900 p-4 md:p-8">
       {/* Symptoms Section */}
-      <div className="w-full lg:w-3/5 bg-white/10 backdrop-blur-lg shadow-xl rounded-xl p-8 border border-white/30 text-white">
-        <h1 className="text-2xl font-bold text-center mb-4">🏥 Disease Prediction</h1>
+      <div className="w-full lg:w-3/5 bg-white/10 backdrop-blur-lg shadow-xl rounded-xl p-6 border border-white/30 text-white">
+        <h1 className="text-2xl md:text-3xl font-bold text-center mb-4">🏥 Disease Prediction</h1>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 h-96  p-4 rounded-lg shadow-md bg-white/20">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 h-80 overflow-y-auto p-4 rounded-lg shadow-md bg-white/20">
           {allSymptoms.map((symptom, index) => (
             <label key={index} className="flex items-center space-x-2">
               <input
@@ -64,7 +63,7 @@ function App() {
                 onChange={() => handleCheckboxChange(symptom)}
                 className="w-4 h-4 accent-indigo-600"
               />
-              <span className="text-sm">{symptom}</span>
+              <span className="text-sm break-words">{symptom}</span>
             </label>
           ))}
         </div>
@@ -78,11 +77,11 @@ function App() {
       </div>
 
       {/* Diagnosis Report */}
-      <div className="w-full lg:w-2/5 bg-white/90 text-gray-900 p-6 rounded-md mt-6 lg:mt-0 lg:ml-6 shadow-xl">
-        <h2 className="text-xl font-bold text-center text-indigo-600">✅ Diagnosis Report</h2>
+      <div className="w-full lg:w-2/5 bg-white text-gray-900 p-6 rounded-md mt-6 lg:mt-0 lg:ml-6 shadow-xl text-center">
+        <h2 className="text-xl md:text-2xl font-bold text-indigo-600">✅ Diagnosis Report</h2>
 
         {result ? (
-          <div className="mt-4 space-y-2">
+          <div className="mt-4 space-y-2 text-left">
             <p><strong>🦠 Disease:</strong> {result.disease}</p>
             <p><strong>💊 Cure:</strong> {result.cure}</p>
             <p><strong>👨‍⚕️ Consult:</strong> {result.doctor}</p>
@@ -90,7 +89,7 @@ function App() {
             <p><strong>📊 Accuracy:</strong> {result.accuracy}%</p>
           </div>
         ) : (
-          <p className="text-gray-500 text-center mt-4">No diagnosis yet.</p>
+          <p className="text-gray-500 mt-4">No diagnosis yet.</p>
         )}
       </div>
     </div>
