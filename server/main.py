@@ -8,31 +8,32 @@ import os
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
-# Get absolute path of the current script
+# Get the absolute path of the server directory
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Load trained model and label encoder
-try:
-    model_path = os.path.join(BASE_DIR, "server", "disease_prediction_model.pkl")
-    label_encoder_path = os.path.join(BASE_DIR, "server", "label_encoder.pkl")
+# Paths to model and dataset files
+MODEL_PATH = os.path.join(BASE_DIR, "disease_prediction_model.pkl")
+ENCODER_PATH = os.path.join(BASE_DIR, "label_encoder.pkl")
+DATASET_PATH = os.path.join(BASE_DIR, "dataset.csv")
 
-    model = joblib.load(model_path)
-    label_encoder = joblib.load(label_encoder_path)
+# Load the trained model and label encoder
+try:
+    model = joblib.load(MODEL_PATH)
+    label_encoder = joblib.load(ENCODER_PATH)
     print("✅ Model and Label Encoder loaded successfully!")
 except Exception as e:
-    print("❌ Error loading model or label encoder:", str(e))
-    exit(1)  # Stop execution if models can't be loaded
+    print(f"❌ Error loading model or label encoder: {str(e)}")
+    exit(1)  # Exit if models can't be loaded
 
-# Load dataset and extract feature names (excluding non-symptom columns)
+# Load dataset and extract feature names
 try:
-    dataset_path = os.path.join(BASE_DIR, "server", "dataset.csv")
-    df = pd.read_csv(dataset_path)
+    df = pd.read_csv(DATASET_PATH)
     X_columns = [col for col in df.columns if col not in ["disease", "cures", "doctor", "risk level"]]
     disease_info = df[['disease', 'cures', 'doctor', 'risk level']].drop_duplicates()
     print("✅ Dataset loaded successfully!")
 except Exception as e:
-    print("❌ Error loading dataset:", str(e))
-    exit(1)  # Stop execution if dataset can't be loaded
+    print(f"❌ Error loading dataset: {str(e)}")
+    exit(1)  # Exit if dataset can't be loaded
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -43,13 +44,10 @@ def predict():
         if not user_symptoms:
             return jsonify({"error": "No symptoms provided"}), 400
 
-        # Ensure input symptoms match expected feature names
+        # Ensure only valid symptoms are used
         unexpected_symptoms = user_symptoms - set(X_columns)
         if unexpected_symptoms:
             return jsonify({"error": f"Unexpected symptoms found: {list(unexpected_symptoms)}"}), 400
-
-        missing_features = set(X_columns) - user_symptoms  # Missing symptoms from input
-        print(f"🔹 Missing Features: {missing_features}")
 
         # Convert symptoms to binary format
         symptoms_binary = [1 if symptom in user_symptoms else 0 for symptom in X_columns]
@@ -76,7 +74,7 @@ def predict():
     except Exception as e:
         print("❌ ERROR:", str(e))
         traceback.print_exc()  # Print full error details in console
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "An internal server error occurred", "details": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
